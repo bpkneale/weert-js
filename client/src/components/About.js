@@ -86,6 +86,10 @@ export default class About extends React.PureComponent {
               Source code and README can be found in the
               <a href="https://github.com/tkeffer/weert-js"> GitHub repository</a>
             </li>
+            <li>
+              This repository has been forked to provide US to Metric conversions on the client side
+              <a href="https://github.com/bpkneale/weert-js"> Metric fork repository</a>
+            </li>
           </ul>
           <h4>Server information</h4>
           <div style={{ opacity: isFetching ? 0.5 : 1 }}>

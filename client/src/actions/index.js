@@ -6,6 +6,7 @@
 
 import * as api from "../Api";
 import * as utility from "../utility";
+import * as unitConfig from "../../config/unitConfig";
 
 export const SELECT_TAGS = "SELECT_TAGS";
 export const SELECT_TIME_SPAN = "SELECT_TIME_SPAN";
@@ -83,7 +84,10 @@ function fetchTimeSpan(measurement, tags, timeSpan, options) {
     const stop = undefined;
     return api
       .getPackets(measurement, tags, start, stop, options.aggregation)
-      .then(packets => dispatch(receiveTimeSpan(timeSpan, packets)))
+      .then(packets => {
+        packets.forEach(p => utility.convertPacketToUnit(p.fields, unitConfig.unitSystem_Metric));
+        dispatch(receiveTimeSpan(timeSpan, packets))
+      } )
       .catch(err => dispatch(receiveTimeSpanFailed(timeSpan, err)));
   };
 }
@@ -130,6 +134,7 @@ function newPacket(measurement, packet) {
 export function subscribeMeasurement(measurement, tags) {
   return (dispatch, getState) => {
     return api.subscribe(measurement, tags, packet => {
+      utility.convertPacketToUnit(packet.fields, unitConfig.unitSystem_Metric);
       return dispatch(newPacket(measurement, packet));
     });
   };
@@ -165,7 +170,10 @@ function fetchStats(measurement, tags, timeSpan) {
     dispatch(fetchStatsInProgress(timeSpan));
     return api
       .getStats(measurement, tags, timeSpan)
-      .then(stats => dispatch(receiveStats(timeSpan, stats)))
+      .then(stats => {
+        utility.convertStatsToUnit(stats, unitConfig.unitSystem_Metric);
+        dispatch(receiveStats(timeSpan, stats));
+      })
       .catch(err => dispatch(receiveStatsFailed(timeSpan, err)));
   };
 }

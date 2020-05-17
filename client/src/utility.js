@@ -5,6 +5,7 @@
  */
 
 import sortedIndexBy from "lodash/sortedIndexBy";
+import * as unitConfig from "../config/unitConfig";
 
 export function findFirstGood(packets, maxAge) {
   if (packets.length && maxAge !== undefined) {
@@ -94,4 +95,66 @@ export function fetchWithTimeout(url, timeout) {
         reject(err);
       });
   });
+}
+
+function f_to_c(f) {
+  return f === undefined ? undefined : (parseFloat(f) - 32) * 5 / 9 ;
+}
+
+function mph_to_kph(mph) {
+  return mph === undefined ? undefined : mph * 1.609;
+}
+
+function inHg_to_mbar(inHg) {
+  return inHg === undefined ? undefined : inHg * 33.864;
+}
+
+export function convertPacketToUnit(packet, targetUnit) {
+
+  if(targetUnit === unitConfig.unitSystem_Metric) {
+    packet.altimeter_pressure = inHg_to_mbar(packet.altimeter_pressure);
+    packet.console_voltage = packet.console_voltage;
+    packet.dewpoint_temperature = f_to_c(packet.dewpoint_temperature);
+    packet.gauge_pressure = inHg_to_mbar(packet.gauge_pressure);
+    packet.heatindex_temperature = f_to_c(packet.heatindex_temperature);
+    packet.in_humidity_percent = packet.in_humidity_percent;
+    packet.in_temperature = f_to_c(packet.in_temperature);
+    packet.out_humidity_percent = packet.out_humidity_percent;
+    packet.out_temperature = f_to_c(packet.out_temperature);
+    packet.rain_rain = packet.rain_rain;
+    packet.sealevel_pressure = inHg_to_mbar(packet.sealevel_pressure);
+    packet.unit_system = 0x10;
+    packet.wind_dir = packet.wind_dir;
+    packet.wind_speed = mph_to_kph(packet.wind_speed);
+    packet.windchill_temperature = f_to_c(packet.windchill_temperature);
+    packet.x_wind_speed = mph_to_kph(packet.x_wind_speed);
+    packet.y_wind_speed = mph_to_kph(packet.y_wind_speed);
+  }
+}
+
+export function convertStatsToUnit(stats, targetUnit) {
+
+  if(targetUnit === unitConfig.unitSystem_Metric) {
+    let min_pkt = {};
+    let max_pkt = {};
+    for(const key in stats) {
+      if(stats[key].min !== undefined) {
+        min_pkt[key] = stats[key].min.value;
+      }
+      if(stats[key].max !== undefined) {
+        max_pkt[key] = stats[key].max.value;
+      }
+    }
+    convertPacketToUnit(min_pkt, targetUnit);
+    convertPacketToUnit(max_pkt, targetUnit);
+    for(const key in stats) {
+      if(min_pkt[key] !== undefined) {
+        stats[key].min.value = min_pkt[key];
+      }
+      if(max_pkt[key] !== undefined) {
+        stats[key].max.value = max_pkt[key];
+      }
+    }
+  }
+
 }
