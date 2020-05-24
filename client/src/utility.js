@@ -101,8 +101,8 @@ function f_to_c(f) {
   return f === undefined ? undefined : (parseFloat(f) - 32) * 5 / 9 ;
 }
 
-function mph_to_kph(mph) {
-  return mph === undefined ? undefined : mph * 1.609;
+function mph_to_knots(mph) {
+  return mph === undefined ? undefined : mph / 1.151;
 }
 
 function inHg_to_mbar(inHg) {
@@ -125,10 +125,10 @@ export function convertPacketToUnit(packet, targetUnit) {
     packet.sealevel_pressure = inHg_to_mbar(packet.sealevel_pressure);
     packet.unit_system = 0x10;
     packet.wind_dir = packet.wind_dir;
-    packet.wind_speed = mph_to_kph(packet.wind_speed);
+    packet.wind_speed = mph_to_knots(packet.wind_speed);
     packet.windchill_temperature = f_to_c(packet.windchill_temperature);
-    packet.x_wind_speed = mph_to_kph(packet.x_wind_speed);
-    packet.y_wind_speed = mph_to_kph(packet.y_wind_speed);
+    packet.x_wind_speed = mph_to_knots(packet.x_wind_speed);
+    packet.y_wind_speed = mph_to_knots(packet.y_wind_speed);
   }
 }
 
