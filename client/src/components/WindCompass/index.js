@@ -41,7 +41,7 @@ const defaultProps = {
   ticksPerQuad: 8,
   decimalDigits: 0,
   naText: "N/A",
-  windSpeedUnitLabel: "kph",
+  windSpeedUnitLabel: "knots",
   ordinalText: [
     "N",
     "NNE",

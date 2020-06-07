@@ -29,6 +29,7 @@ import PlotContainer from "./PlotContainer";
 import PacketTable from "../components/PacketTable";
 import WindCompass from "../components/WindCompass";
 import StatsTable from "../components/StatsTable";
+import CrossWind from "../components/Crosswind";
 import About from "../components/About";
 import * as config from "../../config/componentConfig";
 import * as api from "../Api";
@@ -48,6 +49,9 @@ class AppContainer extends React.PureComponent {
     super(props, context);
     this.handleChange = this.handleChange.bind(this);
     this.state = {
+      enableFakeData: false,
+      windSpeedSlider: 0,
+      windDirSlider: 0,
       subscriptions: {},
       firstRender: true,
       ...config
@@ -166,6 +170,24 @@ class AppContainer extends React.PureComponent {
     return finalPacket;
   }
 
+  onEnableFakeData(event) {
+    this.setState({
+      enableFakeData: event.target.checked
+    })
+  }
+
+  onWindDirSlide(event) {
+    this.setState({
+      windDirSlider: parseFloat(event.target.value)
+    })
+  }
+
+  onWindSpeedSlide(event) {
+    this.setState({
+      windSpeedSlider: parseFloat(event.target.value)
+    })
+  }
+
   render() {
     const { selectedTimeSpan } = this.props;
     const selectedState = this.props.timeSpans[selectedTimeSpan];
@@ -186,6 +208,10 @@ class AppContainer extends React.PureComponent {
     }
 
     const aboutProps = this.props.about;
+    const runwayWidgetSpeed = this.state.enableFakeData ? this.state.windSpeedSlider
+                              : currentPacket ? currentPacket["wind_speed"] : undefined;
+    const runwayWidgetDirection = this.state.enableFakeData ? this.state.windDirSlider
+                                  : currentPacket ? currentPacket["wind_dir"] : undefined;
 
     return (
       <Grid fluid={true}>
@@ -242,6 +268,38 @@ class AppContainer extends React.PureComponent {
               <NavItem eventKey="year">Year</NavItem>
             </Nav>
             <PlotContainer selectedTimeSpan={selectedTimeSpan} selectedState={selectedState} />
+            <div id="fake-data-container" style={{display: "none"}}>
+              <label>
+                <input type="checkbox" onChange={this.onEnableFakeData.bind(this)} value={this.state.enableFakeData}></input>
+                Enable Fake Data
+              </label>
+              <label>
+                Fake Wind Direction (degrees)
+                <input type="range" min="0" max="360" step="1" onChange={this.onWindDirSlide.bind(this)} value={this.state.windDirSlider}></input>
+              </label>
+              <label>
+                Fake Wind Speed (knots)
+                <input type="range" min="0" max="50" step="1" onChange={this.onWindSpeedSlide.bind(this)} value={this.state.windSpeedSlider}></input>
+              </label>
+            </div>
+            <div style={{display: "flex"}}>
+              <CrossWind runway={16} 
+                  windSpeed={runwayWidgetSpeed}
+                  windDirection={runwayWidgetDirection}
+                  />
+              <CrossWind runway={34} 
+                  windSpeed={runwayWidgetSpeed}
+                  windDirection={runwayWidgetDirection}
+                  />
+              <CrossWind runway={8} 
+                  windSpeed={runwayWidgetSpeed}
+                  windDirection={runwayWidgetDirection}
+                    />
+              <CrossWind runway={26} 
+                  windSpeed={runwayWidgetSpeed}
+                  windDirection={runwayWidgetDirection}
+                  />
+            </div>
           </Col>
         </Row>
       </Grid>
